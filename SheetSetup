@@ -35,7 +35,7 @@ Sub SheetSetup()
     ws.Cells(1, 31).Value = "p code"
     
     ' Fill column AE with an optimized VLOOKUP formula
-    ws.Range("AE2:AE" & lastRow).Formula = "=VLOOKUP($S2,'P-code'!$B$1:$L$" & lookupLastRow & ",11,FALSE)"
+    ws.Range("AE2:AE" & lastRow).Formula = "=VLOOKUP($S2,'P-code'!$A$1:$K$" & lookupLastRow & ",11,FALSE)"
     
     Application.CutCopyMode = False
     
