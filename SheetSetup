@@ -14,7 +14,7 @@ Sub SheetSetup()
     ' Find the last row of data in the sheet
     lastRow = ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
     
-    ' Fill in the helper column with the formula =Bn+Dn
+    ' Fill in the helper column with the formula =Bn+Cn
     ws.Range("A2:A" & lastRow).Formula = "=B2&C2"
     
     ' Copy column I to column AD
