@@ -1,0 +1,50 @@
+Sub ImportTSV()
+    Dim ws As Worksheet
+    Dim filePath As String
+    Dim selectedDate As Date
+    Dim formattedDate As String
+    Dim queryTable As QueryTable
+    
+    ' Prompt user to select a TSV file
+    filePath = Application.GetOpenFilename("Text Files (*.tsv), *.tsv", , "Select a TSV File")
+    
+    ' Exit if user cancels selection
+    If filePath = "False" Then Exit Sub
+    
+    ' Prompt user to select a date
+    On Error Resume Next
+    selectedDate = CDate(InputBox("Enter the date (MM/DD/YYYY):", "Select Date", Format(Date, "MM/DD/YYYY")))
+    If Err.Number <> 0 Then
+        MsgBox "Invalid date entered. Operation canceled.", vbExclamation, "Error"
+        Exit Sub
+    End If
+    On Error GoTo 0
+    
+    ' Format the selected date
+    formattedDate = "data - " & Format(selectedDate, "m-d-yyyy")
+    
+    ' Create a new worksheet
+    Set ws = ThisWorkbook.Sheets.Add
+    
+    ' Import the TSV file using QueryTable
+    Set queryTable = ws.QueryTables.Add(Connection:="TEXT;" & filePath, Destination:=ws.Range("A1"))
+    With queryTable
+        .TextFileConsecutiveDelimiter = False
+        .TextFileTabDelimiter = True
+        .TextFilePlatform = xlWindows
+        .TextFileStartRow = 1
+        .TextFileParseType = xlDelimited
+        
+        ' Set all columns to General format
+        .TextFileColumnDataTypes = Array(1) ' 1 = General format
+        
+        .Refresh
+    End With
+    
+    ' Rename the sheet
+    On Error Resume Next ' Handle duplicate sheet names
+    ws.Name = formattedDate
+    On Error GoTo 0
+
+    MsgBox "TSV file imported successfully!", vbInformation, "Import Complete"
+End Sub
