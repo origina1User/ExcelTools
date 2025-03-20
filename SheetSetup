@@ -1,0 +1,37 @@
+Sub SheetSetup()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    
+    ' Set the active sheet
+    Set ws = ActiveSheet
+    
+    ' Insert a new column to the left of column A
+    ws.Columns("A").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    
+    ' Name the new column "helper"
+    ws.Cells(1, 1).Value = "helper"
+    
+    ' Find the last row of data in the sheet
+    lastRow = ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+    
+    ' Fill in the helper column with the formula =Bn+Dn
+    ws.Range("A2:A" & lastRow).Formula = "=B2+D2"
+    
+    ' Copy column I to column AD
+    ws.Range("I1:I" & lastRow).Copy
+    ws.Range("AD1").PasteSpecial Paste:=xlPasteValues
+    
+    ' Copy column J to column AF
+    ws.Range("J1:J" & lastRow).Copy
+    ws.Range("AF1").PasteSpecial Paste:=xlPasteValues
+    
+    ' Name column AE header "p code"
+    ws.Cells(1, 31).Value = "p code"
+    
+    ' Fill column AE with VLOOKUP formula
+    ws.Range("AE2:AE" & lastRow).Formula = "=VLOOKUP($S2,'P-code'!$1:1048576,11,FALSE)"
+    
+    Application.CutCopyMode = False
+    
+    MsgBox "New column inserted, helper column populated, column I copied to AD, column J copied to AF, column AE named 'p code', and VLOOKUP formula applied", vbInformation, "Operation Complete"
+End Sub
