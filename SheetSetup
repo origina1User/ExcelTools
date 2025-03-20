@@ -25,7 +25,7 @@ Sub SheetSetup()
     
     ' Copy column I to column AD
     ws.Range("I1:I" & lastRow).Copy
-    ws.Range("AD1").PasteSpecial Paste:=xlPasteValues
+    ws.Range("AD1").PasteSpecial Paste:=xlPasteAll
     
     ' Copy column J to column AF
     ws.Range("J1:J" & lastRow).Copy
