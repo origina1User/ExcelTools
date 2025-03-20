@@ -20,8 +20,8 @@ Sub SheetSetup()
     ' Find the last row of data in the lookup sheet (P-code)
     lookupLastRow = lookupSheet.Cells(lookupSheet.Rows.Count, 2).End(xlUp).Row ' Assuming column B contains data
     
-    ' Fill in the helper column with the formula =Bn&Dn
-    ws.Range("A2:A" & lastRow).Formula = "=B2&D2"
+    ' Fill in the helper column with the formula =B2&C2
+    ws.Range("A2:A" & lastRow).Formula = "=B2&C2"
     
     ' Copy column I to column AD
     ws.Range("I1:I" & lastRow).Copy
