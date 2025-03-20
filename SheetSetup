@@ -1,9 +1,12 @@
 Sub SheetSetup()
     Dim ws As Worksheet
+    Dim lookupSheet As Worksheet
     Dim lastRow As Long
+    Dim lookupLastRow As Long
     
     ' Set the active sheet
     Set ws = ActiveSheet
+    Set lookupSheet = Worksheets("P-code") ' Reference the lookup sheet
     
     ' Insert a new column to the left of column A
     ws.Columns("A").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
@@ -11,11 +14,14 @@ Sub SheetSetup()
     ' Name the new column "helper"
     ws.Cells(1, 1).Value = "helper"
     
-    ' Find the last row of data in the sheet
+    ' Find the last row of data in the current sheet
     lastRow = ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
     
-    ' Fill in the helper column with the formula =Bn+Cn
-    ws.Range("A2:A" & lastRow).Formula = "=B2&C2"
+    ' Find the last row of data in the lookup sheet (P-code)
+    lookupLastRow = lookupSheet.Cells(lookupSheet.Rows.Count, 2).End(xlUp).Row ' Assuming column B contains data
+    
+    ' Fill in the helper column with the formula =Bn&Dn
+    ws.Range("A2:A" & lastRow).Formula = "=B2&D2"
     
     ' Copy column I to column AD
     ws.Range("I1:I" & lastRow).Copy
@@ -28,10 +34,10 @@ Sub SheetSetup()
     ' Name column AE header "p code"
     ws.Cells(1, 31).Value = "p code"
     
-    ' Fill column AE with VLOOKUP formula
-    ws.Range("AE2:AE" & lastRow).Formula = "=VLOOKUP($S2,'P-code'!$1:1048576,11,FALSE)"
+    ' Fill column AE with an optimized VLOOKUP formula
+    ws.Range("AE2:AE" & lastRow).Formula = "=VLOOKUP($S2,'P-code'!$B$1:$L$" & lookupLastRow & ",11,FALSE)"
     
     Application.CutCopyMode = False
     
-    MsgBox "New column inserted, helper column populated, column I copied to AD, column J copied to AF, column AE named 'p code', and VLOOKUP formula applied", vbInformation, "Operation Complete"
+    MsgBox "New column inserted, helper column populated, column I copied to AD, column J copied to AF, column AE named 'p code', and optimized VLOOKUP formula applied", vbInformation, "Operation Complete"
 End Sub
