@@ -13,33 +13,20 @@ Sub SheetSetup()
     Set ws = ActiveSheet
     Set lookupSheet = Worksheets("P-code") ' Reference the lookup sheet
 
-    ' Prompt the user to select a previous sheet using a dropdown via Excel InputBox alternative
-    sheetNames = ""
+    ' Automatically select the most recent eligible sheet for lookup
     For Each sheet In ThisWorkbook.Sheets
         If sheet.Name <> ws.Name And _
            sheet.Name <> "Results" And _
            sheet.Name <> "rev rec" And _
            sheet.Name <> "P-code" Then
-            sheetNames = sheetNames & sheet.Name & ","
+            Set prevSheet = sheet
         End If
     Next sheet
-    If Len(sheetNames) > 0 Then
-        sheetNames = Left(sheetNames, Len(sheetNames) - 1) ' Remove trailing comma
-    Else
-        MsgBox "No eligible sheets found to select from.", vbExclamation
-        Exit Sub
-    End If
 
-    prevSheetName = Application.InputBox("Type the name of the previous sheet from this list:" & vbNewLine & sheetNames, _
-                                         "Select Previous Sheet", Type:=2)
-
-    On Error Resume Next
-    Set prevSheet = Worksheets(prevSheetName)
     If prevSheet Is Nothing Then
-        MsgBox "Sheet '" & prevSheetName & "' not found. Operation canceled.", vbCritical
+        MsgBox "No eligible previous sheet found for lookup.", vbExclamation
         Exit Sub
     End If
-    On Error GoTo 0
 
     ' Insert a new column to the left of column A
     ws.Columns("A").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
