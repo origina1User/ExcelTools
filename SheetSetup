@@ -3,41 +3,79 @@ Sub SheetSetup()
     Dim lookupSheet As Worksheet
     Dim lastRow As Long
     Dim lookupLastRow As Long
-    
+    Dim prevSheet As Worksheet
+    Dim prevSheetLastRow As Long
+    Dim prevSheetName As String
+    Dim sheetNames As String
+    Dim sheet As Worksheet
+
     ' Set the active sheet
     Set ws = ActiveSheet
     Set lookupSheet = Worksheets("P-code") ' Reference the lookup sheet
-    
+
+    ' Prompt the user to select a previous sheet using a dropdown via Excel InputBox alternative
+    sheetNames = ""
+    For Each sheet In ThisWorkbook.Sheets
+        If sheet.Name <> ws.Name And _
+           sheet.Name <> "Results" And _
+           sheet.Name <> "rev rec" And _
+           sheet.Name <> "P-code" Then
+            sheetNames = sheetNames & sheet.Name & ","
+        End If
+    Next sheet
+    sheetNames = Left(sheetNames, Len(sheetNames) - 1) ' Remove trailing comma
+
+    prevSheetName = Application.InputBox("Type the name of the previous sheet from this list:" & vbNewLine & sheetNames, _
+                                         "Select Previous Sheet", Type:=2)
+
+    On Error Resume Next
+    Set prevSheet = Worksheets(prevSheetName)
+    If prevSheet Is Nothing Then
+        MsgBox "Sheet '" & prevSheetName & "' not found. Operation canceled.", vbCritical
+        Exit Sub
+    End If
+    On Error GoTo 0
+
     ' Insert a new column to the left of column A
     ws.Columns("A").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    
+
     ' Name the new column "helper"
     ws.Cells(1, 1).Value = "helper"
-    
+
     ' Find the last row of data in the current sheet
     lastRow = ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
-    
+
     ' Find the last row of data in the lookup sheet (P-code)
     lookupLastRow = lookupSheet.Cells(lookupSheet.Rows.Count, 2).End(xlUp).Row ' Assuming column B contains data
-    
+
     ' Fill in the helper column with the formula =B2&C2
     ws.Range("A2:A" & lastRow).Formula = "=B2&C2"
-    
+
     ' Copy column I to column AD
     ws.Range("I1:I" & lastRow).Copy
     ws.Range("AD1").PasteSpecial Paste:=xlPasteAll
-    
+
     ' Copy column J to column AF
     ws.Range("J1:J" & lastRow).Copy
     ws.Range("AF1").PasteSpecial Paste:=xlPasteValues
-    
+
     ' Name column AE header "p code"
     ws.Cells(1, 31).Value = "p code"
-    
+
     ' Fill column AE with an optimized VLOOKUP formula
     ws.Range("AE2:AE" & lastRow).Formula = "=VLOOKUP($S2,'P-code'!$A$1:$K$" & lookupLastRow & ",11,FALSE)"
-    
+
+    ' === Cross-sheet VLOOKUP ===
+    ' Determine the last row of data in the previous sheet
+    prevSheetLastRow = prevSheet.Cells(prevSheet.Rows.Count, 1).End(xlUp).Row
+
+    ' Overwrite column J with cross-sheet VLOOKUP
+    ws.Columns("J").ClearContents
+    ws.Cells(1, 10).Value = "Task Comments"
+    ws.Range("J2:J" & lastRow).Formula = _
+        "=VLOOKUP($A2,'" & prevSheet.Name & "'!$A$1:$L$" & prevSheetLastRow & ",10,FALSE)"
+
     Application.CutCopyMode = False
-    
-    MsgBox "New column inserted, helper column populated, column I copied to AD, column J copied to AF, column AE named 'p code', and optimized VLOOKUP formula applied", vbInformation, "Operation Complete"
+
+    MsgBox "Sheet setup complete, including cross-sheet lookup in column J!", vbInformation, "Done"
 End Sub
