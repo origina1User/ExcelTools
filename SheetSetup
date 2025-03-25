@@ -23,7 +23,12 @@ Sub SheetSetup()
             sheetNames = sheetNames & sheet.Name & ","
         End If
     Next sheet
-    sheetNames = Left(sheetNames, Len(sheetNames) - 1) ' Remove trailing comma
+    If Len(sheetNames) > 0 Then
+        sheetNames = Left(sheetNames, Len(sheetNames) - 1) ' Remove trailing comma
+    Else
+        MsgBox "No eligible sheets found to select from.", vbExclamation
+        Exit Sub
+    End If
 
     prevSheetName = Application.InputBox("Type the name of the previous sheet from this list:" & vbNewLine & sheetNames, _
                                          "Select Previous Sheet", Type:=2)
