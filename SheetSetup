@@ -5,8 +5,6 @@ Sub SheetSetup()
     Dim lookupLastRow As Long
     Dim prevSheet As Worksheet
     Dim prevSheetLastRow As Long
-    Dim prevSheetName As String
-    Dim sheetNames As String
     Dim sheet As Worksheet
 
     ' Set the active sheet
@@ -14,14 +12,18 @@ Sub SheetSetup()
     Set lookupSheet = Worksheets("P-code") ' Reference the lookup sheet
 
     ' Automatically select the most recent eligible sheet for lookup
-    For Each sheet In ThisWorkbook.Sheets
-        If sheet.Name <> ws.Name And _
-           sheet.Name <> "Results" And _
-           sheet.Name <> "rev rec" And _
-           sheet.Name <> "P-code" Then
-            Set prevSheet = sheet
-        End If
-    Next sheet
+    Dim foundSheet As Boolean
+foundSheet = False
+For Each sheet In ThisWorkbook.Sheets
+    If Not foundSheet And _
+       sheet.Name <> ws.Name And _
+       sheet.Name <> "Results" And _
+       sheet.Name <> "rev rec" And _
+       sheet.Name <> "P-code" Then
+        Set prevSheet = sheet
+        foundSheet = True
+    End If
+Next sheet
 
     If prevSheet Is Nothing Then
         MsgBox "No eligible previous sheet found for lookup.", vbExclamation
