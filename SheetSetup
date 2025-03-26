@@ -13,18 +13,18 @@ Sub SheetSetup()
 
     ' Automatically select the most recent eligible sheet for lookup
     Dim foundSheet As Boolean
-foundSheet = False
-Dim i As Long
-For i = ThisWorkbook.Sheets.Count To 1 Step -1
-    Set sheet = ThisWorkbook.Sheets(i)
-    If Not foundSheet And _
-       sheet.Name <> ws.Name And _
-       sheet.Name <> "Results" And _
-       sheet.Name <> "rev rec" And _
-       sheet.Name <> "P-code" Then
-        Set prevSheet = sheet
-        foundSheet = True
-    End If
+    foundSheet = False
+    Dim i As Long
+    For i = 1 To ThisWorkbook.Sheets.Count
+        Set sheet = ThisWorkbook.Sheets(i)
+        If Not foundSheet And _
+           sheet.Name <> ws.Name And _
+           sheet.Name <> "Results" And _
+           sheet.Name <> "rev rec" And _
+           sheet.Name <> "P-code" Then
+            Set prevSheet = sheet
+            foundSheet = True
+        End If
     Next i
 
     If prevSheet Is Nothing Then
@@ -70,6 +70,31 @@ For i = ThisWorkbook.Sheets.Count To 1 Step -1
     ws.Cells(1, 10).Value = "Task Comments"
     ws.Range("J2:J" & lastRow).Formula = _
         "=VLOOKUP($A2,'" & prevSheet.Name & "'!$A$1:$L$" & prevSheetLastRow & ",10,FALSE)"
+
+    ' Center text in column J
+    ws.Columns("J").HorizontalAlignment = xlCenter
+
+    ' Freeze top row
+    ws.Rows("2:2").Select
+    ActiveWindow.FreezePanes = True
+
+    ' Apply conditional formatting
+    Dim dataRange As Range
+    Set dataRange = ws.Range("H2:K" & lastRow)
+
+    ' 1. Green background if column J contains "invoice"
+    With dataRange
+        .FormatConditions.Add Type:=xlExpression, Formula1:= _
+            "=$J2=\"invoice\""
+        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(198, 239, 206)
+    End With
+
+    ' 2. Red background if column I ≠ column AD
+    With dataRange
+        .FormatConditions.Add Type:=xlExpression, Formula1:= _
+            "=$I2<>$AD2"
+        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(255, 199, 206)
+    End With
 
     Application.CutCopyMode = False
 
