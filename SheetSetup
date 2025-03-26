@@ -14,7 +14,9 @@ Sub SheetSetup()
     ' Automatically select the most recent eligible sheet for lookup
     Dim foundSheet As Boolean
 foundSheet = False
-For Each sheet In ThisWorkbook.Sheets
+Dim i As Long
+For i = ThisWorkbook.Sheets.Count To 1 Step -1
+    Set sheet = ThisWorkbook.Sheets(i)
     If Not foundSheet And _
        sheet.Name <> ws.Name And _
        sheet.Name <> "Results" And _
@@ -23,7 +25,7 @@ For Each sheet In ThisWorkbook.Sheets
         Set prevSheet = sheet
         foundSheet = True
     End If
-Next sheet
+    Next i
 
     If prevSheet Is Nothing Then
         MsgBox "No eligible previous sheet found for lookup.", vbExclamation
