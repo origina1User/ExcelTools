@@ -57,6 +57,7 @@ Smartly updates formulas in the `Results` sheet when a new data snapshot is adde
 1. Open Excel and press `ALT + F11` to open the **VBA editor**.
 2. Insert a new Module via `Insert > Module`.
 3. Paste in the desired macro(s).
+   (Repeat Steps 2-3 for each macro)
 4. Save your workbook as a **Macro-Enabled Workbook (.xlsm)**.
 5. Run the macros via `ALT + F8`.
 
