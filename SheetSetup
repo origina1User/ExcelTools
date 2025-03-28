@@ -95,6 +95,12 @@ Sub SheetSetup()
         .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(255, 0, 0)
     End With
 
+    ' 3. Red background in column O if Actual Material > Estimated Material (O > N)
+    With ws.Range("O2:O" & lastRow)
+        .FormatConditions.Add Type:=xlExpression, Formula1:="=$O2>$N2"
+        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(255, 0, 0)
+    End With
+
     Application.CutCopyMode = False
 
     ' Hide columns S through AC
