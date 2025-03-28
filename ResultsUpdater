@@ -6,65 +6,77 @@ Sub UpdateResultsSheetReferences()
     Dim formulaRange As Range
     Dim count As Long: count = 0
 
-    Dim sheetNames As Collection
+    Dim sheetPairs() As Variant
     Dim s As Worksheet
     Dim baseName As String
     Dim datePart As Date
-    Dim datesFound As Collection
-    Dim i As Long
+    Dim parts() As String
+    Dim i As Long, j As Long, tempDate As Date
+    Dim tempName As String
+    Dim totalSheets As Long
 
     ' Set the Results worksheet
     Set ws = ThisWorkbook.Sheets("Results")
 
-    ' Collect all sheet names matching "data - m-d-yyyy"
-    Set sheetNames = New Collection
-    Set datesFound = New Collection
+    ' First, count how many matching sheets we have
+    totalSheets = 0
     For Each s In ThisWorkbook.Sheets
         If s.Name Like "data - *" Then
             baseName = Replace(s.Name, "data - ", "")
-            Dim parts() As String
             parts = Split(baseName, "-")
             If UBound(parts) = 2 Then
                 On Error Resume Next
                 datePart = DateSerial(CInt(parts(2)), CInt(parts(0)), CInt(parts(1)))
                 If Err.Number = 0 Then
-                    sheetNames.Add s.Name
-                    datesFound.Add datePart
+                    totalSheets = totalSheets + 1
                 End If
                 On Error GoTo 0
             End If
         End If
     Next s
 
-    ' Sort dates and pick the two most recent
-    If datesFound.Count < 2 Then
+    If totalSheets < 2 Then
         MsgBox "Not enough 'data - m-d-yyyy' sheets to determine old and new references.", vbExclamation
         Exit Sub
     End If
 
-    ' Find latest and previous dates
-    Dim latestDate As Date, prevDate As Date
-    Dim sortedDates() As Date
-    ReDim sortedDates(1 To datesFound.Count)
-    For i = 1 To datesFound.Count
-        sortedDates(i) = datesFound(i)
-    Next i
-    Dim j As Long, temp As Date
-    For i = 1 To datesFound.Count - 1
-        For j = i + 1 To datesFound.Count
-            If sortedDates(j) > sortedDates(i) Then
-                temp = sortedDates(i)
-                sortedDates(i) = sortedDates(j)
-                sortedDates(j) = temp
+    ' Rebuild and store name-date pairs
+    ReDim sheetPairs(1 To totalSheets, 1 To 2)
+    totalSheets = 0
+    For Each s In ThisWorkbook.Sheets
+        If s.Name Like "data - *" Then
+            baseName = Replace(s.Name, "data - ", "")
+            parts = Split(baseName, "-")
+            If UBound(parts) = 2 Then
+                On Error Resume Next
+                datePart = DateSerial(CInt(parts(2)), CInt(parts(0)), CInt(parts(1)))
+                If Err.Number = 0 Then
+                    totalSheets = totalSheets + 1
+                    sheetPairs(totalSheets, 1) = s.Name
+                    sheetPairs(totalSheets, 2) = datePart
+                End If
+                On Error GoTo 0
+            End If
+        End If
+    Next s
+
+    ' Sort sheetPairs by date descending
+    For i = 1 To totalSheets - 1
+        For j = i + 1 To totalSheets
+            If sheetPairs(j, 2) > sheetPairs(i, 2) Then
+                tempName = sheetPairs(i, 1)
+                tempDate = sheetPairs(i, 2)
+                sheetPairs(i, 1) = sheetPairs(j, 1)
+                sheetPairs(i, 2) = sheetPairs(j, 2)
+                sheetPairs(j, 1) = tempName
+                sheetPairs(j, 2) = tempDate
             End If
         Next j
     Next i
-    
-    latestDate = sortedDates(1)
-    prevDate = sortedDates(2)
 
-    oldSheetName = "data - " & Format(prevDate, "m-d-yyyy")
-    newSheetName = "data - " & Format(latestDate, "m-d-yyyy")
+    ' Extract old and new sheet names
+    newSheetName = sheetPairs(1, 1)
+    oldSheetName = sheetPairs(2, 1)
 
     oldSheetName = InputBox("Confirm or edit the OLD sheet name to replace:", "Old Sheet Name", oldSheetName)
     If oldSheetName = "" Then
