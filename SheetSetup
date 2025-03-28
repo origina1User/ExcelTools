@@ -85,13 +85,13 @@ Sub SheetSetup()
     ' 1. Green background if column J contains "invoice"
     With dataRange
         .FormatConditions.Add Type:=xlExpression, Formula1:="=$J2=""invoice"""
-        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(198, 239, 206)
+        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(0, 176, 80)
     End With
 
     ' 2. Red background if column I ≠ column AD
     With dataRange
         .FormatConditions.Add Type:=xlExpression, Formula1:="=$I2<>$AD2"
-        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(255, 199, 206)
+        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(255, 0, 0)
     End With
 
     Application.CutCopyMode = False
