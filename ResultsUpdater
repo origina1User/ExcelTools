@@ -44,16 +44,24 @@ Sub UpdateResultsSheetReferences()
 
     ' Find latest and previous dates
     Dim latestDate As Date, prevDate As Date
-    latestDate = datesFound(1)
-    prevDate = datesFound(1)
-    For i = 2 To datesFound.Count
-        If datesFound(i) > latestDate Then
-            prevDate = latestDate
-            latestDate = datesFound(i)
-        ElseIf datesFound(i) > prevDate And datesFound(i) < latestDate Then
-            prevDate = datesFound(i)
-        End If
+    Dim sortedDates() As Date
+    ReDim sortedDates(1 To datesFound.Count)
+    For i = 1 To datesFound.Count
+        sortedDates(i) = datesFound(i)
     Next i
+    Dim j As Long, temp As Date
+    For i = 1 To datesFound.Count - 1
+        For j = i + 1 To datesFound.Count
+            If sortedDates(j) > sortedDates(i) Then
+                temp = sortedDates(i)
+                sortedDates(i) = sortedDates(j)
+                sortedDates(j) = temp
+            End If
+        Next j
+    Next i
+    
+    latestDate = sortedDates(1)
+    prevDate = sortedDates(2)
 
     oldSheetName = "data - " & Format(prevDate, "m-d-yyyy")
     newSheetName = "data - " & Format(latestDate, "m-d-yyyy")
