@@ -101,6 +101,12 @@ Sub SheetSetup()
         .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(255, 0, 0)
     End With
 
+    ' 4. Yellow background in column B if B value exists in 'rev rec'!$B:$B
+    With ws.Range("B2:B" & lastRow)
+        .FormatConditions.Add Type:=xlExpression, Formula1:="=ISNUMBER(MATCH(B2,'rev rec'!$B:$B,0))"
+        .FormatConditions(.FormatConditions.Count).Interior.Color = RGB(255, 242, 204)
+    End With
+
     Application.CutCopyMode = False
 
     ' Hide columns S through AC
