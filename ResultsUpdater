@@ -22,13 +22,17 @@ Sub UpdateResultsSheetReferences()
     For Each s In ThisWorkbook.Sheets
         If s.Name Like "data - *" Then
             baseName = Replace(s.Name, "data - ", "")
-            On Error Resume Next
-            datePart = CDate(baseName)
-            If Err.Number = 0 Then
-                sheetNames.Add s.Name
-                datesFound.Add datePart
+            Dim parts() As String
+            parts = Split(baseName, "-")
+            If UBound(parts) = 2 Then
+                On Error Resume Next
+                datePart = DateSerial(CInt(parts(2)), CInt(parts(0)), CInt(parts(1)))
+                If Err.Number = 0 Then
+                    sheetNames.Add s.Name
+                    datesFound.Add datePart
+                End If
+                On Error GoTo 0
             End If
-            On Error GoTo 0
         End If
     Next s
 
