@@ -74,9 +74,10 @@ Sub SheetSetup()
     ' Center text in column J
     ws.Columns("J").HorizontalAlignment = xlCenter
 
-    ' Freeze top row
+    ' Freeze top row and enable filters
     ws.Rows("2:2").Select
     ActiveWindow.FreezePanes = True
+    ws.Rows(1).AutoFilter
 
     ' Apply conditional formatting
     Dim dataRange As Range
