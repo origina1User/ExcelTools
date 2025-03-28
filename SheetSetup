@@ -98,5 +98,8 @@ Sub SheetSetup()
 
     Application.CutCopyMode = False
 
+    ' Hide columns S through AC
+    ws.Columns("S:AC").Hidden = True
+
     MsgBox "Sheet setup complete, including cross-sheet lookup in column J!", vbInformation, "Done"
 End Sub
