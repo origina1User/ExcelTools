@@ -1,0 +1,87 @@
+Sub UpdateResultsSheetReferences()
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim oldSheetName As String
+    Dim newSheetName As String
+    Dim formulaRange As Range
+    Dim count As Long: count = 0
+
+    Dim sheetNames As Collection
+    Dim s As Worksheet
+    Dim baseName As String
+    Dim datePart As Date
+    Dim datesFound As Collection
+    Dim i As Long
+
+    ' Set the Results worksheet
+    Set ws = ThisWorkbook.Sheets("Results")
+
+    ' Collect all sheet names matching "data - m-d-yyyy"
+    Set sheetNames = New Collection
+    Set datesFound = New Collection
+    For Each s In ThisWorkbook.Sheets
+        If s.Name Like "data - *" Then
+            baseName = Replace(s.Name, "data - ", "")
+            On Error Resume Next
+            datePart = CDate(baseName)
+            If Err.Number = 0 Then
+                sheetNames.Add s.Name
+                datesFound.Add datePart
+            End If
+            On Error GoTo 0
+        End If
+    Next s
+
+    ' Sort dates and pick the two most recent
+    If datesFound.Count < 2 Then
+        MsgBox "Not enough 'data - m-d-yyyy' sheets to determine old and new references.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Find latest and previous dates
+    Dim latestDate As Date, prevDate As Date
+    latestDate = datesFound(1)
+    prevDate = datesFound(1)
+    For i = 2 To datesFound.Count
+        If datesFound(i) > latestDate Then
+            prevDate = latestDate
+            latestDate = datesFound(i)
+        ElseIf datesFound(i) > prevDate And datesFound(i) < latestDate Then
+            prevDate = datesFound(i)
+        End If
+    Next i
+
+    oldSheetName = "data - " & Format(prevDate, "m-d-yyyy")
+    newSheetName = "data - " & Format(latestDate, "m-d-yyyy")
+
+    oldSheetName = InputBox("Confirm or edit the OLD sheet name to replace:", "Old Sheet Name", oldSheetName)
+    If oldSheetName = "" Then
+        MsgBox "Operation canceled.", vbExclamation
+        Exit Sub
+    End If
+
+    newSheetName = InputBox("Confirm or edit the NEW sheet name to use:", "New Sheet Name", newSheetName)
+    If newSheetName = "" Then
+        MsgBox "Operation canceled.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Define the range to check
+    Set formulaRange = ws.UsedRange
+
+    Application.ScreenUpdating = False
+
+    ' Loop through cells in the used range to update formulas
+    For Each cell In formulaRange.Cells
+        If cell.HasFormula Then
+            If InStr(cell.Formula, oldSheetName) > 0 Then
+                cell.Formula = Replace(cell.Formula, oldSheetName, newSheetName)
+                count = count + 1
+            End If
+        End If
+    Next cell
+
+    Application.ScreenUpdating = True
+
+    MsgBox count & " formula(s) updated from '" & oldSheetName & "' to '" & newSheetName & "'.", vbInformation
+End Sub
